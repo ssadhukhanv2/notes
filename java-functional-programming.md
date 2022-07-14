@@ -267,7 +267,7 @@ We typically use unary operator in scenarios where we need to return a function 
 * [What are Higher Order Functions](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17976355#questions/11094811) Higher order functions are functions that do any of the following:
     * Accept argument as function/lambda
     * Return function/lambda.
-    * Both accept and return function/lambda as lambda argument.
+    * Both accept and return function/lambda as lambda argument or return type.
 
 * [Explain the characteristics of Pure Functions](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17976347#questions/11094811) A pure function has the following characteristics.
     * The output of a pure function depends only on:
@@ -365,7 +365,7 @@ Pure functions are typically Referentially Transparent.<br/>
 
 
 
-* [What is closure in context of functional programming](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17976613#questions/11094811)  A closure is a ``function`` that refers to ``free variables`` in it's lexical ``context.`` 
+* [What is closure in context of functional programming](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17976613#questions/11094811)  A closure is a ``function``(or ``method``) that refers to ``free variables`` in their lexical ``context.`` 
   * **``function``** is a block of code, it may produce a result
   * **``free variable``** is an identifier used but not defined by the closure.
   * **``lexical context``** or lexical scope is a convention that sets the scope of variable so that it may only be called from within the block of code in which it's defined.
@@ -391,7 +391,7 @@ Pure functions are typically Referentially Transparent.<br/>
         }
     
     * The beauty here is that variable ``val`` which is a local variable in function ``testClosure()`` is getting accessed from within ``executeTask()``
-    * Where ever a lambda uses a free variable within the same scope, the value of that variable is saved and whever the lambda is called it goes along with that. So here this closure is using free variable present in it's lexical scope. 
+    * Where ever a lambda uses a free variable within the same scope, the value of that variable is saved by the jvm and whenever the lambda is called it's passed along with that. So here this closure is using free variable present in it's lexical scope. 
     * Closures are important as they control what is or isn't in the scope of a function.
 
 
@@ -518,7 +518,6 @@ We get the data from the data source, apply processing operations and then we co
 
 
 ## **Stream Operations || ``Higher Order Functions`` in Streams || ``.filter() || .map() || .reduce()``**
-
 * [What are the different higher order functions in Streams/ Stream Operations](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975897#questions)
     * .filter()
     * .map()
@@ -558,7 +557,7 @@ We get the data from the data source, apply processing operations and then we co
 * [What is the use of .reduce() operation](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975903#questions) ``.reduce()`` method is used when we need to reduce the stream to a single value. For example to find the sum, product, min, max  etc. .reduce() operation is used to combine all stream elements.
     * Syntax: ``T reduce(T identity, BinaryOperator<T> accumulator);``
       * **``identity``**: this is a value that has no effect when used in an operation. for example for sum identity would be 0, for product it would be 1.
-      * **``accumulator``**: accumulator is a BinaryOperator.
+      * **``accumulator``**: accumulator is a ``BinaryOperator``.
 
 
             List<Integer> integerList = Arrays.asList(1, 12, 23, 34, 45, 56, 67, 78, 89, 90);
@@ -597,6 +596,8 @@ We get the data from the data source, apply processing operations and then we co
     Syntax: ``Stream<T> peek(Consumer<? super T> action);``
 
 
+
+## **Primitive Streams || ``IntStream`` || ``DoubleStream`` || ``LongStream``**
 
 
 * [Why are Primitive Streams in java and why do need them](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975911#questions) 
@@ -648,6 +649,7 @@ We get the data from the data source, apply processing operations and then we co
             Assertions.assertEquals(10, summaryStatistics.getMax());
             Assertions.assertEquals(9, summaryStatistics.getCount());
 
+## **Bounded vs Infinite Streams || Processing Stream of Streams using .``flatMap()``**
 
 * [How can we create Bounded Streams in Java](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975915#overview) We can create a Stream with a specific number of elements, these streams are known as Bounded Streams. 
 
@@ -695,12 +697,13 @@ We get the data from the data source, apply processing operations and then we co
 * [What are Infinite Streams in java and how do you create them](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975919#overview) Infinite Stream in java does not have a limit on the number of elements in a stream, an infinite set of elements will be streamed. 
 
     Infinite Stream in java may be created using the following Stream or Primitive Stream methods.
-    * **Stream.iterate():** Stream.iterate(T seed, UnaryOperator u) takes in a seed and unary operators. At each step the unaryOperator is evaluated and a new element is generated based on the seed.
+    * **Stream.iterate():** Stream.iterate() takes in a seed and an unary operator. At each step the unaryOperator is evaluated and a new element is generated based on the seed.
+    ``Stream.iterate(T seed, UnaryOperator u)``
     
             Stream<Integer> infiniteObjectStream = Stream.iterate(0, i -> i + 5);
       This will generate a stream 0, 5, 10, 15, 20, 25, 30, 35, 40, 45........
 
-    * **Stream.generate():** Stream.generate(Supplier supplier) takes in a supplier and returns an infinite stream. Each element in the stream pipeline is generated using the Supplier.get() method.
+    * **Stream.generate():** Strean.generate() takes in a supplier and returns an infinite stream. Each element in the stream pipeline is generated using the Supplier.get() method. ``Stream.generate(Supplier supplier)``
         
             Stream<String> infiniteStreamString = Stream.generate(() -> "Hello");
             Assertions.assertThat(firstTenObjectOfInfiniteStreamString)
@@ -739,3 +742,142 @@ We get the data from the data source, apply processing operations and then we co
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+
+
+## **Parallel Streams || Stateful vs Stateless Operations in Streams || Manage Concurrency using Fork Join Pool** 
+
+
+* [Why do we need Parallel Stream](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975929#overview) Now-a-days most computers come with multicore processors, so we can design our programs in a way that can take advantage of Multicore Processing. This means more resources work simultaneously to get the job done faster. Java Streams has APIs that supports parallel processing. This may be achieved in 2 ways:
+  * **stream().parallel()**: By default streams are sequential, we can make it parallel by invoking the ``.parallel()`` on the ``.stream()`` method.
+  
+        Stream<Employee> parallelEmployeeStream=employeeList.stream().parallel();
+  * **Collection.parallelStream()**: While creating streams from collections, we can use the .parallelStream() to create the parallel stream directly.
+        
+        Stream<Employee> parallelEmployeeStream=employeeList.parallelStream();
+
+  * **``Parallel processing``** though powerful has it's own implication. While applying parallel processing on streams, stream should be:
+    * **``Stateless``** We should only be using parallel streams with stateless intermediate operations
+    * **``Non-interfering``**: The stream should be non-interfering, this means that the datasource should not be affected during the operation.
+    * **``Associative``**: The stream should be associative, this means, one operation should not get affected by the order of data under processing.
+
+  * Parallel Streams are build on top of fork-join framework which is build on top of Multithreading framework so there should not be any synchronization or visibility issues, but we need to ensure that ``we are not changing the state of the object throughout the pipeline``.
+
+
+
+* [What are stateful and stateless operations in Streams](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975933#overview)
+
+    **Stateless operations:**
+    * Stateless operations are performed one by one on the element and it doesn't need any outside information for the Stream to be processed. 
+    * Ordering of elements doesn't matter.
+    * Stateless operations can be run in parallel.
+    * ``.filter() .map() .reduce()`` etc are Stateless operations.
+            
+            long numbersAbove5 = intList.stream().parallel().filter(i -> i > 5).count();
+
+    **Stateful Operations:**
+    * Stateful operation are the ones that uses outside information.
+    * Ordering of elements matters.
+    * Stateful operations are not suitable for parallel execution.
+    * ``.skip() .limit()`` etc are some of the Stateful operations.
+            
+            List<Integer> topThreeElementsNotContainingMax = intList.stream()
+                    .sorted(Comparator.reverseOrder())
+                    .skip(1).limit(3).collect(Collectors.toList());
+
+    * The above code is stateful as we are trying to fetch top 3 highest values in the list. 
+* [How will you manage the concurrency level for your Streams that's using the fork-join pool](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975935#overview) The .parallelStream() by default makes use of fork join pool. 
+
+    * By default the parallelism 1 less than the available number of cores. We can set the parallelism level of fork-join pool using the following:
+            
+            System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "100");
+
+    * Code:
+            
+            ForkJoinPool forkJoinPool = new ForkJoinPool(100);
+            int povertyThreshold = 700000;
+            Future<Long> countFuture = forkJoinPool.submit(() -> employeeList.stream()
+                    .filter(employee -> employee.getSalary() > povertyThreshold).count());
+
+    * For **Computation Intensive task** set the number of threads/parallelism to ``less than`` number of CPU Cores.
+    * For **IO Intensive task** we can set the number of threads/parallelism to ``greater than`` number of CPU Cores, because most of the time the threads will be waiting on IO input and thus we can leverage the idle cpu cycles.
+
+
+## **Spliterator** || **``Methods & Characteristics``** || **Creating Custom Spliterator**
+
+
+* [What is the use of Spliterator](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975757#questions) Spliterator is an interface which we may use to create a stream from a custom source like file. 
+    * It is an object to access the data which the stream can use.
+    * The Collection classes by default has their own implementation of the Spliterator interface, which are used to create streams from them.
+    * The Spliterator interface has 4 abstract methods which we may be implemented to create a stream from a custom source. The abstract methods are:
+        * **tryAdvance():** This takes a consumer, so if a remaining element exists it performs certain action on it and returns boolean. **``boolean tryAdvance(Consumer<? super T> action);``**
+        * **trySplit():** It splits the elements, some of the implemetation available for this method is BalancedTree. **``Spliterator<T> trySplit();``**
+        * **estimateSize():** This returns the number of elements that would be encountered by a for each traversal. **``long estimateSize();``**
+        * **characteristics():** Returns a set of characteristics of the Spliterator **``int characteristics();``**
+
+
+* [What do you mean by the Characteristics or State of Stream and how does it help optimize functional code](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975759#overview) 
+
+    * **Spliterator:** The ``Spliterator`` interface has 8 primitive integer constants which are called the spliterator characteristics. These constants are used to define/represent the stream's State.
+    * **Spliterator Characteristics** The .characteristics() method helps us set the characteristics of a stream which helps in performance optimization. Typically the .characteristics() should return a primitive integer which is "|" of all the Characteristics that are set for a particular Stream. For example for the List class the method looks like the following:
+ 
+            public int characteristics() {
+                return Spliterator.ORDERED | Spliterator.SIZED | Spliterator.SUBSIZED;
+            }
+        *  The following constants in the Spliterator interface may be included in the characteristics() method while defining a stream:
+            * **Spliterator.ORDERED** : Denotes the order of elements are preserved in a stream, for example the stream generated from ``ArrayList``.
+            * **Spliterator.DISTINCT**: Denotes that there is no duplication, for example the stream generated from a ``HashSet``.
+            * **Spliterator.SORTED**:  Denotes that the stream is sorted, for example the stream generated from a ``SortedSet``, ``TreeSet`` etc.
+            * **Spliterator.SIZED**: Denotes that the size of the Spliliterator is known.
+            * **Spliterator.NONNULL**: Denotes that there are no null values in the stream.
+            * **Spliterator.IMMUTABLE**: Denotes that the stream is immutable.
+            * **Spliterator.CONCURRENT**: Denotes that the stream is built on a concurrent structure, for example stream generated from ``ConcurrentHashMap``
+            * **Spliterator.SUBSIZED**: Denotes that the size is know and additionally, the Spliterator generated from the trySplit() method will also be sized, when we go parallel.
+
+        * To determine if a Spliterator has a particular state we check in two ways: 
+            * Perform AND "&" of the value returned by the Spliterator and the state itself.
+            * Use the spliterator.hasCharacteristics() method.
+
+
+                    int spliteratorCharacteristics = list.stream().spliterator().characteristics();
+                    int result = spliteratorCharacteristics & Spliterator.ORDERED;
+                    Assertions.assertEquals(result, Spliterator.ORDERED);
+                    Assertions.assertTrue(spliterator.hasCharacteristics(Spliterator.ORDERED));
+    * **Performance Optimization with Spliterator Characteristics**: Suppose we invoke a .sorted() method on a stream pipeline build around TreeSet. Since TreeSet is a sorted collection, the corresponding spliterator will have Spliterator.SORTED set in it's characteristics() method. So while executing the stream pipeline, the .sorted() method will be skipped. So with the characteristics while execution of the stream pipeline the jvm may skip one or more operations in order to optimize the stream execution.
+    However if .sorted() method is called on a stream from ArrayList, the Spliterator.SORTED will be set in the corresponding spliterator of the stream.
+    So the operations may set, preserve or clear a characteristic which decides how the pipeline will be executed. 
+
+
+* [How will you create a Custom Spliterator](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975761#overview) **``Check BookListReaderTest.java``**
+
+
+
+
+## **Collectors**
+
+* [What is the use of Collectors](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975693#overview) The terminal operation in a stream pipeline may be doing any one of the following:
+    * Consuming the data using a Consumer. Example : ``.forEach(System.out::println)``
+    * Accumulating the data using BinaryOperator and/or identity. Example: ``.reduce(i,(a,b)->a+b)``
+    * Collecting the data to a Data Container like Collection. Example: ``.collect(Collectors.toUnmodifiableList())``<br/>
+
+  **Collectors is an utility class that provide ready made reduction algorithms that can **``accumulate, aggregate & summarise``** elements into Collections.**
+  * The Collectors class  has different static methods that allow us to collect the data into various structures or containers. 
+  * The Collectors class is defined as final  and all static methods of the Collectors Class return an instance of Collector interface.
+
+        Stream<Integer> streamEven=integerList.filter(n->n%2);
+        Collector collector=Collectors.toList();
+        List<Integer> integerList=streamEven.collect(collector);
+
+  *The only way to ``collect data without using Collectors`` is to **``use the .reduce() operation``** where we need to implement our own algorithm to collect the data into our desired structure*
+
+* [How will you collect a Stream to List and Set](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975695#overview) A stream may be collected to a list or set using the below methods.
+    * List Collectors
+        * Collectors.toList();
+        * Collectors.toUnmodifiableList();
+    * Set Collectors
+        * Collectors.toSet();
+        * Collectors.toUnmodifiableSet();
+    * Sample Code:
+
+            List<String> employeeNames = employeeList.stream().map(employee -> employee.getName()).collect(Collectors.toList());
+            Set<String> employeeNames = employeeList.stream().map(employee -> employee.getDesignation()).collect(Collectors.toUnmodifiableSet());
