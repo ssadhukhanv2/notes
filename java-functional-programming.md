@@ -871,13 +871,122 @@ We get the data from the data source, apply processing operations and then we co
   *The only way to ``collect data without using Collectors`` is to **``use the .reduce() operation``** where we need to implement our own algorithm to collect the data into our desired structure*
 
 * [How will you collect a Stream to List and Set](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975695#overview) A stream may be collected to a list or set using the below methods.
-    * List Collectors
+    * Collecting to a List
         * Collectors.toList();
         * Collectors.toUnmodifiableList();
-    * Set Collectors
+    * Collecting to a Set
         * Collectors.toSet();
         * Collectors.toUnmodifiableSet();
-    * Sample Code:
+    * Collecting to any Collection
+        * Collectors.toCollection(collectionSupplier)
+    * Sample Code for collecting to List & Set:
 
             List<String> employeeNames = employeeList.stream().map(employee -> employee.getName()).collect(Collectors.toList());
             Set<String> employeeNames = employeeList.stream().map(employee -> employee.getDesignation()).collect(Collectors.toUnmodifiableSet());
+
+    * Sample Code for collecting to any Collection:
+
+            //Employee implements Comparable
+            TreeSet<Employee> employeeListSortedById = employeeList
+                .stream().collect(Collectors.toCollection(TreeSet::new));
+
+
+
+* [How will you collect data to a Map](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975697#overview) We can collect stream to a Map using the below collectors
+
+    * **Collectors.toMap()**: Returns a Map of the stream using the keyMapperFunction &  valueMapperFunction **``Collectors.toMap(keyMapperFunction,valueMapperFunction)``**
+
+            Map<Integer, String> employeeNameIdMap = employeeList.stream().collect(
+                    Collectors.toMap(
+                            employee -> employee.getId(),
+                            employee -> employee.getName()
+                    )
+                );
+    * **Collectors.toUnmodifiableMap()**: Returns an unmodifiable Map of from the stream using the keyMapperFunction &  valueMapperFunction. **``Collectors.toUnmodifiableMap(keyMapperFunction,valueMapperFunction)``**
+    * **Collectors.partitioningBy()** Partitions the data into two groups. Returns a Map having two elements, one element has data for the predicate evaluated to true and the other element has data for the predicate evaluated as false. Key is boolean and Value is List. **``Collectors.partitioningBy(predicate)``**
+
+            Map<Boolean, List<Employee>> employeeMapPartitionedByGender = employeeList.stream().collect(
+                    Collectors.partitioningBy(
+                        employee -> employee.getGender() == 'M'
+                    )
+                );
+    * **Collectors.groupingBy()** Groups the data based on a given classifier function. Returns a Map that has elements equal to the number of distinct values for the classifier. **``Collectors.groupingBy(classifier)``**
+
+            Map<String, List<Employee>> employeesPerDept = employeeList.stream()
+                .collect(
+                    Collectors.groupingBy(
+                        employee -> employee.getDesignation()
+                    )
+                );
+
+
+
+* [How will you collect data to a String](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975699#overview) We can use the **``Collection.joining(delimiterString)``** to get a string consisting of elements joined by joined by the delimeter.
+    
+        String empNames = employeeList.stream()
+                .map(employee -> employee.getName())
+                .collect(Collectors.joining(","));
+
+
+
+* [What do you mean by Collector Cascading or Collector nesting ](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975709#overview) Using java we can nest the Collectors furthers to do further post processing. There are collector methods which themselves can take Collectors as argument. When we use a Collector inside a Collector we call the inside Collector a downStream Collector. For example we have **``Collectors.groupingBy(classifier, downStream)``** [Examples](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975709#overview)
+
+    * **Count of employees per designation** using **``Collectors.counting()``**
+
+            Map<String, Long> employeesPerDesignation = employeeList.stream().collect(
+                    Collectors.groupingBy(employee -> employee.getDesignation(),
+                    Collectors.counting()
+                    )
+            );
+
+    * **Sum & Average salaries of Employees in each designation** using **``Collectors.summingDouble()``** & **``Collectors.averagingDouble()``**
+
+            Map<String, Double> sumOfEmployeeSalariesPerDept = employeeList.stream().collect(
+                Collectors.groupingBy(Employee::getDesignation, 
+                    Collectors.summingDouble(Employee::getSalary))
+            );
+            Map<String, Double> averageOfEmployeeSalariesPerDept = employeeList.stream().collect(
+                Collectors.groupingBy(Employee::getDesignation, 
+                    Collectors.averagingDouble(Employee::getSalary))
+            );
+
+    * **Highest Paid OptionalEmployee in Each Designation** using **``Collectors.maxBy(comparator)``**
+    
+            Map<String, Optional<Employee>> maxSalaryPerDesignation = employeeList.stream().collect(
+                Collectors.groupingBy(Employee::getDesignation,
+                    Collectors.maxBy(Comparator.comparing(Employee::getSalary)))
+            );
+
+    * **Highest Paid Employee in Each Designation** using **``Collectors.collectingAndThen()``**
+
+            Map<String, Employee> maxSalaryPerDesignation = employeeList.stream().collect(
+                        Collectors.groupingBy(Employee::getDesignation,
+                                Collectors.collectingAndThen(
+                                        Collectors.maxBy(Comparator.comparing(Employee::getSalary)), Optional::get)
+                        )
+                );
+
+    * **Max Optional Salary per Designation** using **``Collectors.mapping()``**  **``Collectors.maxBy(Comparator.comparing(Function.identity())``** 
+        * Collectors.mapping() is like the .map() function but used inside a Collector
+        * Function.identity() is same as writing i->i
+        
+                Map<String, Optional<Double>> maxSalaryPerDesignation = employeeList.stream().collect(
+                        Collectors.groupingBy(Employee::getDesignation,
+                            Collectors.mapping(Employee::getSalary,
+                                Collectors.maxBy(Comparator.comparing(Function.identity()))
+                            )
+                        )
+                    );
+
+
+    * **Max Salary per Designation** using ``collectingAndThen()``
+
+            Map<String, Double> maxSalaryPerDesignation = employeeList.stream().collect(
+                            Collectors.groupingBy(Employee::getDesignation,
+                                    Collectors.mapping(Employee::getSalary,
+                                            Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparing(i -> i)),Optional::get)
+                                    )
+                            )
+                    );
+
+
