@@ -979,7 +979,7 @@ We get the data from the data source, apply processing operations and then we co
                     );
 
 
-    * **Max Salary per Designation** using ``collectingAndThen()``
+    * **Max Salary per Designation** using **``collectingAndThen()``**
 
             Map<String, Double> maxSalaryPerDesignation = employeeList.stream().collect(
                             Collectors.groupingBy(Employee::getDesignation,
