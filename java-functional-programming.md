@@ -990,3 +990,60 @@ We get the data from the data source, apply processing operations and then we co
                     );
 
 
+
+
+* [How does Collectors internally work](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975657#overview) ``Stream.collect(collector)`` method takes Collector as an argument. Collector is an interface with 5 abstract methods. Out of these 5 methods, apart from characteristics are higher order functions. 
+
+    * The methods are:
+        * supplier() This returns a Supplier. For example for Collectors.toList() this function returns an empty ArrayList.
+        * accumulator() This returns a BiConsumer. The BiConsumer adds elements to the container when the accept method is called on the BiConsumer. For example-The stream elements are added one by one to the ArrayList using the BiConsumer.
+        * combiner() This returns a BinaryOperator. This step is used to merge the partial results from differnt threads into a final result, incase we want parallel processing.
+        * finisher() This returns a Function. We pass container object to the apply() method to get the final object. Performs final transformation on the intermediate accumulation type to the Final Result Type.
+        * characteristics() This returns a Set of Characteristics of the Collector. The collector characteristics help determine whether some or all of the above function would be executed.
+
+    * We can use the existing implementation of Collector class already defined in the ``Collectors`` as a nested ``static class CollectorImpl``. The constructor of CollectorImpl take in the higher order functions as arguments and it's responsible for calling the relevant methods(functions) in order to get the final object.
+
+
+    When we call stream().collect(collector) the following steps are executed in order. 
+
+        container=collector.supplier().get();
+        BiConsumer accumulator=collector.accumulator();
+        forEach(u->accumulator.accept(container,u));
+        //Combiner Steps
+        return collector.finisher().apply(container);
+
+    These steps are defined in the class **``java.util.stream.ReferencePipeline``**
+
+
+* [How can you create a custom Collector to collect a stream to an ArrayList](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975661#overview)
+
+        //This collector doesn't include a finisher
+        Collector<Integer, ArrayList<Integer>, ArrayList<Integer>> arrayListCollector = 
+        Collector.of(
+                ArrayList::new,//Supplier
+                (list, e) -> list.add(e),//BiConsumer
+                (list1, list2) -> {//BiFunction
+                    list1.addAll(list2);
+                    return list1;
+                },
+                // IDENTITY_FINISH mean return type of accumulator and
+                // finisher would be same, hence the finisher is missing
+                Collector.Characteristics.IDENTITY_FINISH);
+
+
+* [How will you write a custom collector that collects a stream to an ArrayList which is ordered](https://tcsglobal.udemy.com/course/functional-programming-and-reactive-programming-in-java/learn/lecture/17975663#overview)
+
+        Collector<Integer, ArrayList<Integer>, ArrayList<Integer>> sortedArrayListCollector =
+                Collector.of(
+                        ArrayList::new,
+                        (list, e) -> list.add(e),
+                        (list1, list2) -> {
+                            list1.addAll(list2);
+                            return list1;
+                        },
+                        (list) -> {
+                            Collections.sort(list);
+                            return list;
+                        },
+                        Collector.Characteristics.UNORDERED
+                );
